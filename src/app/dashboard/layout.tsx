@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { checkLicense } from "@/lib/checkLicense";
 import Link from "next/link";
 
 export default async function DashboardLayout({
@@ -10,9 +11,13 @@ export default async function DashboardLayout({
   const session = await auth();
   if (!session) redirect("/login");
 
+  // Verificar licencia activa
+  const tieneAcceso = await checkLicense(session.user.tenantId!);
+  if (!tieneAcceso) redirect("/suspendido");
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      
+
       {/* Menú lateral */}
       <aside className="w-64 bg-green-800 text-white flex flex-col">
         <div className="p-6 border-b border-green-700">
