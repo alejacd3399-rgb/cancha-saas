@@ -84,11 +84,40 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Actualizar contador de reservas del cliente
-    await prisma.customers.update({
+    // Actualizar contador y verificar fidelización
+    const clienteActualizado = await prisma.customers.update({
       where: { id: customer_id },
       data: { reservations_count: { increment: 1 } },
     });
+
+    // Obtener config de fidelización del tenant
+    const loyaltyConfig = await prisma.loyalty_configs.findUnique({
+      where: { tenant_id: session.user.tenantId! },
+    });
+
+    const reservasPorPremio = loyaltyConfig?.reservations_for_reward ?? 5;
+
+    // Si el cliente alcanzó el número de reservas para premio
+    if (clienteActualizado.reservations_count % reservasPorPremio === 0) {
+      await prisma.reservations.create({
+        data: {
+          tenant_id: session.user.tenantId!,
+          field_id,
+          customer_id,
+          created_by: usuarioActual.id,
+          reservation_date: new Date(reservation_date),
+          start_time: "00:00",
+          end_time: "01:00",
+          duration_minutes: 60,
+          total_amount: 0,
+          paid_amount: 0,
+          payment_status: "paid",
+          status: "confirmed",
+          es_gratis: true,
+          notes: "Reserva gratis por fidelizacion",
+        },
+      });
+    }
 
     return NextResponse.json(reserva, { status: 201 });
 

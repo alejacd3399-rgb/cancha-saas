@@ -49,6 +49,19 @@ async function main() {
   });
   console.log("✅ Admin: admin@canchasaas.com");
 
+  // 4. Configuración de fidelización  ← nuevo
+  await prisma.loyalty_configs.upsert({
+    where: { tenant_id: tenant.id },
+    update: {},
+    create: {
+      tenant_id: tenant.id,
+      reservations_for_reward: 5,
+      reward_description: "1 hora gratis por cada 5 reservas",
+      is_active: true,
+    },
+  });
+  console.log("✅ Config fidelizacion creada");
+
   console.log("\n Datos listos!");
   console.log("Dueno  - Email: dueno@golazo.com / Pass: 123456");
   console.log("Admin  - Email: admin@canchasaas.com / Pass: admin123");
