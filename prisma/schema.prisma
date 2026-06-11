@@ -8,220 +8,119 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ─────────────────────────────────────────
-// ENUMS — listas fijas de valores posibles
-// ─────────────────────────────────────────
-
-// Estado de la licencia mensual del tenant
-enum LicenseStatus {
-  active
-  expired
-  suspended
-}
-
-// Roles del personal dentro de un tenant
-enum TenantUserRole {
-  owner  // Dueño de la cancha
-  admin  // Administrador
-  staff  // Personal de apoyo
-}
-
-// Tipo de cancha
-enum FieldType {
-  futbol5
-  futbol7
-  futbol11
-}
-
-// Superficie de la cancha
-enum FieldSurface {
-  synthetic // Sintética
-  natural   // Natural
-  hybrid    // Híbrida
-}
-
-// Semáforo de pagos 🔴🟠🟢
-enum PaymentStatus {
-  unpaid  // 🔴 Sin pago
-  partial // 🟠 Abono parcial
-  paid    // 🟢 Pagado completo
-}
-
-// Estado de la reserva
-enum ReservationStatus {
-  confirmed  // Confirmada
-  completed  // Completada
-  cancelled  // Cancelada
-  no_show    // No se presentó
-}
-
-// Método de pago
-enum PaymentMethod {
-  cash     // Efectivo
-  nequi    // Nequi
-  transfer // Transferencia
-  other    // Otro
-}
-
-// ─────────────────────────────────────────
-// TABLA 1: tenants
-// Cada tenant es un dueño de cancha
-// ─────────────────────────────────────────
 model tenants {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  business_name  String    @db.VarChar(255)
-  slug           String    @unique @db.VarChar(100)
-  nit            String?   @db.VarChar(20)
-  phone          String?   @db.VarChar(20)
-  email          String?   @db.VarChar(255)
-  address        String?
-  logo_url       String?   @db.VarChar(500)
-  timezone       String    @default("America/Bogota") @db.VarChar(50)
-  is_active      Boolean   @default(true)
-  created_at     DateTime  @default(now()) @db.Timestamptz()
-  updated_at     DateTime  @updatedAt @db.Timestamptz()
-  deleted_at     DateTime? @db.Timestamptz()
-
-  // Relaciones
-  licenses       licenses[]
-  tenant_users   tenant_users[]
-  fields         fields[]
-  customers      customers[]
+  email           String?          @db.VarChar(255)
+  address         String?
+  business_name   String           @db.VarChar(255)
+  created_at      DateTime         @default(now()) @db.Timestamptz(6)
+  deleted_at      DateTime?        @db.Timestamptz(6)
+  is_active       Boolean          @default(true)
+  logo_url        String?          @db.VarChar(500)
+  nit             String?          @db.VarChar(20)
+  phone           String?          @db.VarChar(20)
+  slug            String           @unique @db.VarChar(100)
+  timezone        String           @default("America/Bogota") @db.VarChar(50)
+  updated_at      DateTime         @updatedAt @db.Timestamptz(6)
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customers       customers[]
+  fields          fields[]
+  licenses        licenses[]
   loyalty_configs loyalty_configs?
-  reservations   reservations[]
-  payments       payments[]
+  payments        payments[]
+  reservations    reservations[]
+  tenant_users    tenant_users[]
 }
 
-// ─────────────────────────────────────────
-// TABLA 2: licenses
-// Licencias mensuales — controla el acceso
-// ─────────────────────────────────────────
 model licenses {
-  id                 String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenant_id          String        @db.Uuid
-  plan_name          String        @db.VarChar(100)
-  price              Decimal       @db.Decimal(10, 2)
-  starts_at          DateTime      @db.Date
-  expires_at         DateTime      @db.Date
-  status             LicenseStatus @default(active)
-  payment_reference  String?       @db.VarChar(255)
-  notes              String?
-  created_at         DateTime      @default(now()) @db.Timestamptz()
-  updated_at         DateTime      @updatedAt @db.Timestamptz()
-
-  // Relaciones
-  tenant             tenants       @relation(fields: [tenant_id], references: [id])
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id         String        @db.Uuid
+  plan_name         String        @db.VarChar(100)
+  price             Decimal       @db.Decimal(10, 2)
+  starts_at         DateTime      @db.Date
+  expires_at        DateTime      @db.Date
+  status            LicenseStatus @default(active)
+  payment_reference String?       @db.VarChar(255)
+  notes             String?
+  created_at        DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime      @updatedAt @db.Timestamptz(6)
+  tenant            tenants       @relation(fields: [tenant_id], references: [id])
 }
 
-// ─────────────────────────────────────────
-// TABLA 3: tenant_users
-// Personal y administradores por tenant
-// Stack Auth maneja la contraseña externa
-// ─────────────────────────────────────────
 model tenant_users {
-  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenant_id      String         @db.Uuid
-  stack_auth_id  String?        @unique @db.VarChar(255)
-  email          String         @unique @db.VarChar(255)
-  full_name      String         @db.VarChar(255)
-  password_hash  String?        @db.VarChar(255)    // ← agrega esta línea
-  role           TenantUserRole @default(staff)
-  is_active      Boolean        @default(true)
-  created_at     DateTime       @default(now()) @db.Timestamptz()
-  updated_at     DateTime       @updatedAt @db.Timestamptz()
-  deleted_at     DateTime?      @db.Timestamptz()
-  // Relaciones
-  tenant         tenants        @relation(fields: [tenant_id], references: [id])
-  reservations   reservations[]
-  payments       payments[]
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id     String         @db.Uuid
+  stack_auth_id String?        @unique @db.VarChar(255)
+  email         String         @unique @db.VarChar(255)
+  full_name     String         @db.VarChar(255)
+  role          TenantUserRole @default(staff)
+  is_active     Boolean        @default(true)
+  created_at    DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime       @updatedAt @db.Timestamptz(6)
+  deleted_at    DateTime?      @db.Timestamptz(6)
+  password_hash String?        @db.VarChar(255)
+  payments      payments[]
+  reservations  reservations[]
+  tenant        tenants        @relation(fields: [tenant_id], references: [id])
 }
 
-// ─────────────────────────────────────────
-// TABLA 4: fields (canchas)
-// ─────────────────────────────────────────
 model fields {
-  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenant_id      String       @db.Uuid
-  name           String       @db.VarChar(150)
-  field_type     FieldType
-  price_per_hour Decimal      @db.Decimal(10, 2)
-  surface        FieldSurface @default(synthetic)
-  is_active      Boolean      @default(true)
-  created_at     DateTime     @default(now()) @db.Timestamptz()
-  updated_at     DateTime     @updatedAt @db.Timestamptz()
-  deleted_at     DateTime?    @db.Timestamptz()
-
-  // Relaciones
-  tenant         tenants           @relation(fields: [tenant_id], references: [id])
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id       String            @db.Uuid
+  name            String            @db.VarChar(150)
+  field_type      FieldType
+  price_per_hour  Decimal           @db.Decimal(10, 2)
+  surface         FieldSurface      @default(synthetic)
+  is_active       Boolean           @default(true)
+  created_at      DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime          @updatedAt @db.Timestamptz(6)
+  deleted_at      DateTime?         @db.Timestamptz(6)
   field_schedules field_schedules[]
-  reservations   reservations[]
+  tenant          tenants           @relation(fields: [tenant_id], references: [id])
+  reservations    reservations[]
 }
 
-// ─────────────────────────────────────────
-// TABLA 5: field_schedules (horarios)
-// Disponibilidad semanal recurrente
-// ─────────────────────────────────────────
 model field_schedules {
-  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  field_id               String   @db.Uuid
-  tenant_id              String   @db.Uuid
-  day_of_week            Int      @db.SmallInt
-  open_time              String   @db.VarChar(5)
-  close_time             String   @db.VarChar(5)
-  slot_duration_minutes  Int      @default(60) @db.SmallInt
-  is_active              Boolean  @default(true)
-  created_at             DateTime @default(now()) @db.Timestamptz()
-  updated_at             DateTime @updatedAt @db.Timestamptz()
-
-  // Relaciones
-  field                  fields   @relation(fields: [field_id], references: [id])
+  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  field_id              String   @db.Uuid
+  tenant_id             String   @db.Uuid
+  day_of_week           Int      @db.SmallInt
+  open_time             String   @db.VarChar(5)
+  close_time            String   @db.VarChar(5)
+  slot_duration_minutes Int      @default(60) @db.SmallInt
+  is_active             Boolean  @default(true)
+  created_at            DateTime @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime @updatedAt @db.Timestamptz(6)
+  field                 fields   @relation(fields: [field_id], references: [id])
 }
 
-// ─────────────────────────────────────────
-// TABLA 6: customers (clientes finales)
-// Registrados manualmente por el dueño
-// ─────────────────────────────────────────
 model customers {
-  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenant_id          String    @db.Uuid
-  phone              String    @db.VarChar(20)
-  full_name          String    @db.VarChar(255)
-  email              String?   @db.VarChar(255)
+  id                 String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id          String         @db.Uuid
+  phone              String         @db.VarChar(20)
+  full_name          String         @db.VarChar(255)
+  email              String?        @db.VarChar(255)
   notes              String?
-  reservations_count Int       @default(0)
-  created_at         DateTime  @default(now()) @db.Timestamptz()
-  updated_at         DateTime  @updatedAt @db.Timestamptz()
-  deleted_at         DateTime? @db.Timestamptz()
-
-  // Relaciones
+  reservations_count Int            @default(0)
+  created_at         DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime       @updatedAt @db.Timestamptz(6)
+  deleted_at         DateTime?      @db.Timestamptz(6)
   tenant             tenants        @relation(fields: [tenant_id], references: [id])
   reservations       reservations[]
 
-  // Mismo teléfono no puede repetirse dentro del mismo tenant
   @@unique([tenant_id, phone])
 }
 
-// ─────────────────────────────────────────
-// TABLA 7: loyalty_configs (fidelización)
-// Una configuración por tenant
-// ─────────────────────────────────────────
 model loyalty_configs {
-  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenant_id                String   @unique @db.Uuid
-  reservations_for_reward  Int      @default(10) @db.SmallInt
-  reward_description       String
-  is_active                Boolean  @default(true)
-  created_at               DateTime @default(now()) @db.Timestamptz()
-  updated_at               DateTime @updatedAt @db.Timestamptz()
-
-  // Relaciones
-  tenant                   tenants  @relation(fields: [tenant_id], references: [id])
+  id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id               String   @unique @db.Uuid
+  reservations_for_reward Int      @default(10) @db.SmallInt
+  reward_description      String
+  is_active               Boolean  @default(true)
+  created_at              DateTime @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime @updatedAt @db.Timestamptz(6)
+  tenant                  tenants  @relation(fields: [tenant_id], references: [id])
 }
 
-// ─────────────────────────────────────────
-// TABLA 8: reservations (reservas)
-// Entidad núcleo del sistema
-// ─────────────────────────────────────────
 model reservations {
   id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tenant_id           String            @db.Uuid
@@ -238,36 +137,71 @@ model reservations {
   status              ReservationStatus @default(confirmed)
   notes               String?
   cancellation_reason String?
-  created_at          DateTime          @default(now()) @db.Timestamptz()
-  updated_at          DateTime          @updatedAt @db.Timestamptz()
-  deleted_at          DateTime?         @db.Timestamptz()
-
-  // Relaciones
-  tenant              tenants       @relation(fields: [tenant_id], references: [id])
-  field               fields        @relation(fields: [field_id], references: [id])
-  customer            customers     @relation(fields: [customer_id], references: [id])
-  created_by_user     tenant_users  @relation(fields: [created_by], references: [id])
+  created_at          DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime          @updatedAt @db.Timestamptz(6)
+  deleted_at          DateTime?         @db.Timestamptz(6)
   payments            payments[]
+  created_by_user     tenant_users      @relation(fields: [created_by], references: [id])
+  customer            customers         @relation(fields: [customer_id], references: [id])
+  field               fields            @relation(fields: [field_id], references: [id])
+  tenant              tenants           @relation(fields: [tenant_id], references: [id])
 }
 
-// ─────────────────────────────────────────
-// TABLA 9: payments (abonos INMUTABLES)
-// Un error se corrige con pago negativo
-// NUNCA se edita ni elimina un pago
-// ─────────────────────────────────────────
 model payments {
-  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenant_id      String        @db.Uuid
-  reservation_id String        @db.Uuid
-  received_by    String        @db.Uuid
-  amount         Decimal       @db.Decimal(10, 2)
-  payment_method PaymentMethod @default(cash)
-  reference      String?       @db.VarChar(255)
-  notes          String?
-  created_at     DateTime      @default(now()) @db.Timestamptz()
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenant_id        String        @db.Uuid
+  reservation_id   String        @db.Uuid
+  received_by      String        @db.Uuid
+  amount           Decimal       @db.Decimal(10, 2)
+  payment_method   PaymentMethod @default(cash)
+  reference        String?       @db.VarChar(255)
+  notes            String?
+  created_at       DateTime      @default(now()) @db.Timestamptz(6)
+  received_by_user tenant_users  @relation(fields: [received_by], references: [id])
+  reservation      reservations  @relation(fields: [reservation_id], references: [id])
+  tenant           tenants       @relation(fields: [tenant_id], references: [id])
+}
 
-  // Relaciones
-  tenant         tenants      @relation(fields: [tenant_id], references: [id])
-  reservation    reservations @relation(fields: [reservation_id], references: [id])
-  received_by_user tenant_users @relation(fields: [received_by], references: [id])
+enum LicenseStatus {
+  active
+  expired
+  suspended
+}
+
+enum TenantUserRole {
+  owner
+  admin
+  staff
+}
+
+enum FieldType {
+  futbol5
+  futbol7
+  futbol11
+}
+
+enum FieldSurface {
+  synthetic
+  natural
+  hybrid
+}
+
+enum PaymentStatus {
+  unpaid
+  partial
+  paid
+}
+
+enum ReservationStatus {
+  confirmed
+  completed
+  cancelled
+  no_show
+}
+
+enum PaymentMethod {
+  cash
+  nequi
+  transfer
+  other
 }
