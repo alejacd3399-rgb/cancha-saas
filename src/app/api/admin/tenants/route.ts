@@ -46,9 +46,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result, { status: 201 });
 
-  } catch (error: any) {
-    // Error de slug o email duplicado
-    if (error.code === "P2002") {
+ } catch (error: unknown) {
+    const prismaError = error as { code?: string };
+    if (prismaError.code === "P2002") {
       return NextResponse.json(
         { message: "El slug o email ya existe" },
         { status: 400 }
