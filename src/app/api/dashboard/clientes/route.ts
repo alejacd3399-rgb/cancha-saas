@@ -2,6 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ message: "No autorizado" }, { status: 401 });
+  }
+
+  const clientes = await prisma.customers.findMany({
+    where: {
+      tenant_id: session.user.tenantId!,
+      deleted_at: null,
+    },
+    orderBy: { full_name: "asc" },
+  });
+
+  return NextResponse.json(clientes);
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) {
