@@ -15,6 +15,9 @@ export default async function DashboardLayout({
   const tieneAcceso = await checkLicense(session.user.tenantId!);
   if (!tieneAcceso) redirect("/suspendido");
 
+  // Detectar si es el administrador de la plataforma
+  const esAdminPlataforma = session.user?.email === "admin@canchasaas.com";
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
 
@@ -26,6 +29,19 @@ export default async function DashboardLayout({
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
+          {esAdminPlataforma && (
+            <>
+              <Link
+                href="/admin"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors bg-green-900"
+              >
+                🛠️ Panel Administrador
+              </Link>
+              <div className="border-t border-green-700 my-2"></div>
+              <p className="text-xs text-green-400 px-4 py-1">Vista de prueba (tenant)</p>
+            </>
+          )}
+
           <Link
             href="/dashboard"
             className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors"

@@ -79,18 +79,24 @@ export default async function ReservasPage() {
                     ${Number(r.total_amount).toLocaleString("es-CO")}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      r.payment_status === "paid"
-                        ? "bg-green-100 text-green-700"
-                        : r.payment_status === "partial"
-                        ? "bg-orange-100 text-orange-700"
-                        : "bg-red-100 text-red-700"
-                    }`}>
-                      {r.payment_status === "paid" ? "🟢 Pagado"
-                        : r.payment_status === "partial" ? "🟠 Abono"
-                        : "🔴 Pendiente"}
-                    </span>
-                  </td>
+                      {r.status === "cancelled" ? (
+                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-500">
+                          ❌ Cancelada
+                        </span>
+                      ) : (
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          r.payment_status === "paid"
+                            ? "bg-green-100 text-green-700"
+                            : r.payment_status === "partial"
+                            ? "bg-orange-100 text-orange-700"
+                            : "bg-red-100 text-red-700"
+                        }`}>
+                          {r.payment_status === "paid" ? "🟢 Pagado"
+                            : r.payment_status === "partial" ? "🟠 Abono"
+                            : "🔴 Pendiente"}
+                        </span>
+                      )}
+                    </td>
                   <td className="px-6 py-4">
                     <Link
                       href={`/dashboard/reservas/${r.id}`}

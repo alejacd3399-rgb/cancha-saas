@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import PagoForm from "./PagoForm";
+import CancelarForm from "./CancelarForm";
+import EditarHorarioForm from "./EditarHorarioForm";
 
 export default async function ReservaDetailPage({
   params,
@@ -114,7 +116,17 @@ export default async function ReservaDetailPage({
             />
           </div>
         </div>
-
+         {/* Editar horario — solo si no está pagado ni cancelado */}
+        {reserva.payment_status === "unpaid" && reserva.status !== "cancelled" && (
+          <div className="mt-4">
+            <EditarHorarioForm
+              reservaId={reserva.id}
+              fechaActual={reserva.reservation_date.toISOString().split("T")[0]}
+              inicioActual={reserva.start_time}
+              finActual={reserva.end_time}
+            />
+          </div>
+        )}     
         {reserva.notes && (
           <div className="mt-4 p-3 bg-gray-50 rounded-lg">
             <p className="text-xs text-gray-400">Notas</p>
@@ -162,6 +174,23 @@ export default async function ReservaDetailPage({
             reservaId={reserva.id}
             saldoPendiente={saldoPendiente}
           />
+
+        {/* Cancelar reserva — solo si no está cancelada */}
+      {reserva.status !== "cancelled" && (
+        <div className="bg-white rounded-xl shadow p-6">
+          <CancelarForm reservaId={reserva.id} />
+        </div>
+      )}
+
+      {/* Mostrar motivo si ya está cancelada */}
+      {reserva.status === "cancelled" && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+          <p className="font-medium text-red-700">❌ Reserva cancelada</p>
+          <p className="text-sm text-red-600 mt-1">
+            Motivo: {reserva.cancellation_reason}
+          </p>
+        </div>
+      )}
         </div>
       )}
 
