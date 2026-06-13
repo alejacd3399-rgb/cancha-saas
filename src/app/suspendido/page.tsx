@@ -21,11 +21,11 @@ export default function SuspendidoPage() {
           </p>
         </div>
         <Link
-          href="/login"
-          className="text-green-600 hover:underline text-sm"
-        >
-          Volver al login
-        </Link>
+        href="/api/auth/signout"
+        className="text-green-600 hover:underline text-sm"
+      >
+        Cerrar sesión
+      </Link>
       </div>
     </div>
   );

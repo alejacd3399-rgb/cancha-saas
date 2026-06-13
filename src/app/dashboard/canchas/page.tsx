@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import EliminarCanchaButton from "./EliminarCanchaButton";
 
 export default async function CanchasPage() {
   const session = await auth();
@@ -74,6 +75,7 @@ export default async function CanchasPage() {
                   Editar
                 </Link>
               </div>
+              <EliminarCanchaButton canchaId={cancha.id} />
             </div>
           ))}
         </div>

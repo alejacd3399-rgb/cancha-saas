@@ -6,9 +6,12 @@ export default async function DashboardPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const tenantId = session.user?.tenantId;
-
+  
+  if (session.user?.email === "admin@canchasaas.com") {
+    redirect("/admin");
+  }
   // Traemos estadísticas del tenant
+  const tenantId = session.user?.tenantId;
   const [canchas, clientes, reservasHoy] = await Promise.all([
     prisma.fields.count({
       where: { tenant_id: tenantId!, deleted_at: null },

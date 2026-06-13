@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import EliminarClienteButton from "./EliminarClienteButton";
 
 export default async function ClientesPage() {
   const session = await auth();
@@ -85,12 +86,18 @@ export default async function ClientesPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <Link
-                      href={`/dashboard/clientes/${cliente.id}`}
-                      className="text-green-600 hover:underline text-sm"
-                    >
-                      Ver detalle →
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/dashboard/clientes/${cliente.id}`}
+                        className="text-green-600 hover:underline text-sm"
+                      >
+                        Ver detalle →
+                      </Link>
+                      <EliminarClienteButton
+                        clienteId={cliente.id}
+                        tieneReservas={cliente._count.reservations > 0}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -29,43 +29,41 @@ export default async function DashboardLayout({
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
-          {esAdminPlataforma && (
+          {esAdminPlataforma ? (
+            <Link
+              href="/admin"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors bg-green-900"
+            >
+              🛠️ Panel Administrador
+            </Link>
+          ) : (
             <>
               <Link
-                href="/admin"
-                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors bg-green-900"
+                href="/dashboard"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors"
               >
-                🛠️ Panel Administrador
+                📊 Dashboard
               </Link>
-              <div className="border-t border-green-700 my-2"></div>
-              <p className="text-xs text-green-400 px-4 py-1">Vista de prueba (tenant)</p>
+              <Link
+                href="/dashboard/canchas"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                ⚽ Mis Canchas
+              </Link>
+              <Link
+                href="/dashboard/clientes"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                👥 Clientes
+              </Link>
+              <Link
+                href="/dashboard/reservas"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                📅 Reservas
+              </Link>
             </>
           )}
-
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            📊 Dashboard
-          </Link>
-          <Link
-            href="/dashboard/canchas"
-            className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            ⚽ Mis Canchas
-          </Link>
-          <Link
-            href="/dashboard/clientes"
-            className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            👥 Clientes
-          </Link>
-          <Link
-            href="/dashboard/reservas"
-            className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            📅 Reservas
-          </Link>
         </nav>
 
         <div className="p-4 border-t border-green-700">
