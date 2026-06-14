@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import LicenseForm from "./LicenseForm";
 
+
 export default async function TenantDetailPage({
   params,
 }: {
@@ -44,13 +45,21 @@ export default async function TenantDetailPage({
           </h2>
           <p className="text-gray-500 text-sm">Slug: {tenant.slug}</p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-          licenciaActiva
-            ? "bg-green-100 text-green-700"
-            : "bg-red-100 text-red-700"
-        }`}>
-          {licenciaActiva ? "✅ Suscripción activa" : "❌ Sin suscripción activa"}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+            licenciaActiva
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+          }`}>
+            {licenciaActiva ? "✅ Suscripción activa" : "❌ Sin suscripción activa"}
+          </span>
+          <Link
+            href={`/admin/tenants/${tenant.id}/editar`}
+            className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-green-700"
+          >
+            ✏️ Editar
+          </Link>
+        </div>
       </div>
 
       {/* Estadísticas */}
