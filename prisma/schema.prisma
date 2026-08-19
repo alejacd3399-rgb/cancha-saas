@@ -136,6 +136,7 @@ model reservations {
   payment_status      PaymentStatus     @default(unpaid)
   status              ReservationStatus @default(confirmed)
   notes               String?
+  es_gratis           Boolean           @default(false)
   cancellation_reason String?
   created_at          DateTime          @default(now()) @db.Timestamptz(6)
   updated_at          DateTime          @updatedAt @db.Timestamptz(6)
