@@ -15,10 +15,10 @@ export default async function DashboardLayout({
   const esAdminPlataforma = session.user?.email === "admin@canchasaas.com";
 
   // Verificar licencia activa
-  const tieneAcceso = await checkLicense(session.user.tenantId!);
-  if (!tieneAcceso) redirect("/suspendido");
-
-  
+  if (!esAdminPlataforma) {
+    const tieneAcceso = await checkLicense(session.user.tenantId!);
+    if (!tieneAcceso) redirect("/suspendido");
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
