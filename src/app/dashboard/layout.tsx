@@ -11,12 +11,14 @@ export default async function DashboardLayout({
   const session = await auth();
   if (!session) redirect("/login");
 
+  // Detectar si es el administrador de la plataforma
+  const esAdminPlataforma = session.user?.email === "admin@canchasaas.com";
+
   // Verificar licencia activa
   const tieneAcceso = await checkLicense(session.user.tenantId!);
   if (!tieneAcceso) redirect("/suspendido");
 
-  // Detectar si es el administrador de la plataforma
-  const esAdminPlataforma = session.user?.email === "admin@canchasaas.com";
+  
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
